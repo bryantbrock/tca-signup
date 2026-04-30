@@ -284,7 +284,6 @@
     <main id="root">
       <div class="loading">Loading…</div>
     </main>
-    <footer>Soli Deo Gloria</footer>
     <script>
       (function () {
         const POLL_MS = 10000;
@@ -441,22 +440,32 @@
                 input.focus();
                 return;
               }
+              const date = state.editing.date;
+              const time = state.editing.time;
               setState({ submitting: true, error: null });
               try {
-                await fetchJson(`/api/events/${encodeURIComponent(state.eventId)}/book`, {
-                  method: "POST",
-                  headers: { "content-type": "application/json" },
-                  body: JSON.stringify({
-                    date: state.editing.date,
-                    time: state.editing.time,
-                    name,
-                  }),
-                });
-                const bookings = await refreshBookings(state.eventId);
+                const result = await fetchJson(
+                  `/api/events/${encodeURIComponent(state.eventId)}/book`,
+                  {
+                    method: "POST",
+                    headers: { "content-type": "application/json" },
+                    body: JSON.stringify({ date, time, name }),
+                  },
+                );
+                // Cloudflare KV is eventually consistent (~60s global propagation),
+                // so the bookings list endpoint may not reflect this write yet.
+                // Merge the booking from the response into local state immediately.
+                const bookings = {
+                  ...state.bookings,
+                  [bookingKey(date, time)]: result.booking,
+                };
                 setState({ submitting: false, editing: null, bookings });
               } catch (e) {
                 if (e.status === 409) {
-                  const bookings = await refreshBookings(state.eventId);
+                  const taken = e.data && e.data.booking;
+                  const bookings = taken
+                    ? { ...state.bookings, [bookingKey(date, time)]: taken }
+                    : state.bookings;
                   setState({
                     submitting: false,
                     editing: null,
@@ -506,8 +515,12 @@
           // Poll for booking updates.
           setInterval(async () => {
             if (!state.eventId || state.submitting) return;
-            const bookings = await refreshBookings(state.eventId);
-            // Avoid stomping editing UI; only update bookings map.
+            const polled = await refreshBookings(state.eventId);
+            // Merge: keep any locally-known booking that hasn't yet shown up
+            // server-side (KV is eventually consistent — propagation can take
+            // up to ~60s, so a fresh write from this client may be missing
+            // from a poll served by a different edge).
+            const bookings = { ...state.bookings, ...polled };
             setState({ bookings });
           }, POLL_MS);
         }
