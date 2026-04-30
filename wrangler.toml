@@ -1,7 +1,10 @@
 name = "tca-signup"
 compatibility_date = "2026-04-01"
 pages_build_output_dir = "."
-account_id = "5b086763e031a46fe9ff1d119557a2ae"
+
+# Pages configs don't accept `account_id`. Set CLOUDFLARE_ACCOUNT_ID
+# in your environment when running wrangler:
+#   export CLOUDFLARE_ACCOUNT_ID=5b086763e031a46fe9ff1d119557a2ae
 
 # KV namespace for storing events and bookings.
 [[kv_namespaces]]
