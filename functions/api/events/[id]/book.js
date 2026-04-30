@@ -52,10 +52,12 @@ export async function onRequestPost({ request, params, env }) {
     } catch {
       parsed = null;
     }
+    // Don't expose the existing claimant's name to a stranger trying to
+    // book the same slot.
     return json(
       {
         error: "already_booked",
-        booking: parsed,
+        booking: parsed ? { claimedAt: parsed.claimedAt } : null,
       },
       409,
     );

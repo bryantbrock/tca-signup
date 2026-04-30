@@ -176,6 +176,17 @@
         font-style: italic;
       }
 
+      .slot.claimed.own {
+        background: rgba(222, 160, 109, 0.18);
+        border-color: var(--mead);
+        color: var(--racing-green);
+      }
+
+      .slot.claimed.own .slot-cta.own {
+        color: var(--oxblood);
+        font-style: italic;
+      }
+
       .slot.editing {
         background: var(--parchment);
         border-color: var(--mead);
@@ -325,9 +336,32 @@
           return `${date}|${time}`;
         }
 
+        // Local-only record of bookings made from THIS browser. Names are
+        // never returned by the public bookings API; we look them up here
+        // so the user can see their own claim labeled.
+        function ownStorageKey(eventId) {
+          return `tca-signup:own:${eventId}`;
+        }
+        function loadOwn(eventId) {
+          try {
+            const raw = window.localStorage.getItem(ownStorageKey(eventId));
+            return raw ? JSON.parse(raw) : {};
+          } catch {
+            return {};
+          }
+        }
+        function saveOwn(eventId, own) {
+          try {
+            window.localStorage.setItem(ownStorageKey(eventId), JSON.stringify(own));
+          } catch {
+            // localStorage may be unavailable (private mode quotas); silently skip.
+          }
+        }
+
         let state = {
           event: null,
           bookings: {},
+          own: {}, // { "<date>|<time>": "<name>" } from localStorage
           eventId: null,
           editing: null, // { date, time }
           submitting: false,
@@ -386,10 +420,14 @@
                 state.editing && state.editing.date === d.date && state.editing.time === s.time;
 
               if (booking) {
+                const ownName = state.own[key];
+                const labelHtml = ownName
+                  ? `<span class="slot-cta own">— ${escapeHtml(ownName)} (you)</span>`
+                  : `<span class="slot-cta">Claimed</span>`;
                 html += `
-                  <div class="slot claimed">
+                  <div class="slot claimed${ownName ? " own" : ""}">
                     <span class="slot-time">${escapeHtml(s.label || s.time)}</span>
-                    <span class="slot-cta">— ${escapeHtml(booking.name)}</span>
+                    ${labelHtml}
                   </div>`;
               } else if (isEditing) {
                 const submitting = state.submitting ? "disabled" : "";
@@ -444,7 +482,7 @@
               const time = state.editing.time;
               setState({ submitting: true, error: null });
               try {
-                const result = await fetchJson(
+                await fetchJson(
                   `/api/events/${encodeURIComponent(state.eventId)}/book`,
                   {
                     method: "POST",
@@ -454,18 +492,16 @@
                 );
                 // Cloudflare KV is eventually consistent (~60s global propagation),
                 // so the bookings list endpoint may not reflect this write yet.
-                // Merge the booking from the response into local state immediately.
-                const bookings = {
-                  ...state.bookings,
-                  [bookingKey(date, time)]: result.booking,
-                };
-                setState({ submitting: false, editing: null, bookings });
+                // Mark the slot claimed locally and remember the name we used.
+                const k = bookingKey(date, time);
+                const bookings = { ...state.bookings, [k]: { claimed: true } };
+                const own = { ...state.own, [k]: name };
+                saveOwn(state.eventId, own);
+                setState({ submitting: false, editing: null, bookings, own });
               } catch (e) {
                 if (e.status === 409) {
-                  const taken = e.data && e.data.booking;
-                  const bookings = taken
-                    ? { ...state.bookings, [bookingKey(date, time)]: taken }
-                    : state.bookings;
+                  const k = bookingKey(date, time);
+                  const bookings = { ...state.bookings, [k]: { claimed: true } };
                   setState({
                     submitting: false,
                     editing: null,
@@ -502,7 +538,8 @@
           try {
             const event = await fetchJson(`/api/events/${encodeURIComponent(eventId)}`);
             const bookings = await refreshBookings(eventId);
-            setState({ event, bookings });
+            const own = loadOwn(eventId);
+            setState({ event, bookings, own });
           } catch (e) {
             if (e.status === 404) {
               root.innerHTML = `<div class="empty-state">No event found at <code>/${escapeHtml(eventId)}</code>.</div>`;
