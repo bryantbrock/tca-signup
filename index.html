@@ -10,285 +10,7 @@
       href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Crimson+Pro:ital,wght@0,400;0,500;0,600;1,400&display=swap"
       rel="stylesheet"
     />
-    <style>
-      :root {
-        --racing-green: #003622;
-        --forest-green: #276d33;
-        --mead: #dea06d;
-        --parchment: #fbf5e3;
-        --oxblood: #5f2412;
-        --copper: #a97142;
-
-        --serif-display: "Cormorant Garamond", "Times New Roman", serif;
-        --serif-body: "Crimson Pro", Georgia, serif;
-      }
-
-      *,
-      *::before,
-      *::after {
-        box-sizing: border-box;
-      }
-
-      html,
-      body {
-        margin: 0;
-        padding: 0;
-        background: var(--parchment);
-        color: var(--racing-green);
-        font-family: var(--serif-body);
-        font-size: 18px;
-        line-height: 1.5;
-      }
-
-      header.school {
-        border-bottom: 1px solid rgba(0, 54, 34, 0.18);
-        padding: 18px 24px;
-        text-align: center;
-        letter-spacing: 0.18em;
-        font-family: var(--serif-display);
-        font-weight: 600;
-        font-size: 14px;
-        text-transform: uppercase;
-        color: var(--forest-green);
-      }
-
-      main {
-        max-width: 980px;
-        margin: 0 auto;
-        padding: 56px 24px 96px;
-      }
-
-      .event-header {
-        text-align: center;
-        margin-bottom: 48px;
-      }
-
-      .event-title {
-        font-family: var(--serif-display);
-        font-weight: 600;
-        font-size: clamp(36px, 6vw, 56px);
-        line-height: 1.1;
-        margin: 0 0 12px;
-        color: var(--racing-green);
-      }
-
-      .event-rule {
-        width: 64px;
-        height: 1px;
-        background: var(--mead);
-        margin: 24px auto;
-        border: 0;
-      }
-
-      .event-description {
-        font-size: 19px;
-        max-width: 620px;
-        margin: 0 auto;
-        color: rgba(0, 54, 34, 0.78);
-      }
-
-      .dates-grid {
-        display: grid;
-        gap: 40px;
-        grid-template-columns: 1fr;
-      }
-
-      @media (min-width: 760px) {
-        .dates-grid {
-          grid-template-columns: repeat(var(--date-count, 1), 1fr);
-        }
-      }
-
-      .date-column h2 {
-        font-family: var(--serif-display);
-        font-size: 26px;
-        font-weight: 500;
-        text-align: center;
-        margin: 0 0 4px;
-        color: var(--oxblood);
-      }
-
-      .date-column .date-sub {
-        text-align: center;
-        font-style: italic;
-        color: var(--copper);
-        margin-bottom: 20px;
-        font-size: 15px;
-      }
-
-      .slots {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-      }
-
-      .slot {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 14px 18px;
-        border: 1px solid var(--racing-green);
-        background: transparent;
-        font-family: var(--serif-body);
-        font-size: 18px;
-        color: var(--racing-green);
-        cursor: pointer;
-        transition: background 180ms ease, color 180ms ease, border-color 180ms ease;
-        text-align: left;
-        width: 100%;
-      }
-
-      .slot:hover {
-        background: var(--mead);
-        color: var(--racing-green);
-        border-color: var(--mead);
-      }
-
-      .slot .slot-time {
-        font-weight: 500;
-      }
-
-      .slot .slot-cta {
-        font-style: italic;
-        font-size: 15px;
-        color: var(--forest-green);
-      }
-
-      .slot:hover .slot-cta {
-        color: var(--racing-green);
-      }
-
-      .slot.claimed {
-        cursor: default;
-        background: rgba(0, 54, 34, 0.06);
-        border-color: rgba(0, 54, 34, 0.2);
-        color: rgba(0, 54, 34, 0.55);
-      }
-
-      .slot.claimed:hover {
-        background: rgba(0, 54, 34, 0.06);
-        color: rgba(0, 54, 34, 0.55);
-        border-color: rgba(0, 54, 34, 0.2);
-      }
-
-      .slot.claimed .slot-cta {
-        color: rgba(0, 54, 34, 0.55);
-        font-style: italic;
-      }
-
-      .slot.claimed.own {
-        background: rgba(222, 160, 109, 0.18);
-        border-color: var(--mead);
-        color: var(--racing-green);
-      }
-
-      .slot.claimed.own .slot-cta.own {
-        color: var(--oxblood);
-        font-style: italic;
-      }
-
-      .slot.editing {
-        background: var(--parchment);
-        border-color: var(--mead);
-        flex-direction: column;
-        align-items: stretch;
-        gap: 10px;
-      }
-
-      .slot .editing-row {
-        display: flex;
-        gap: 8px;
-        align-items: center;
-      }
-
-      .slot input[type="text"] {
-        flex: 1;
-        padding: 10px 12px;
-        border: 1px solid var(--racing-green);
-        background: var(--parchment);
-        font-family: var(--serif-body);
-        font-size: 17px;
-        color: var(--racing-green);
-        border-radius: 0;
-      }
-
-      .slot input[type="text"]:focus {
-        outline: 2px solid var(--mead);
-        outline-offset: -2px;
-      }
-
-      .slot button.confirm,
-      .slot button.cancel {
-        font-family: var(--serif-display);
-        font-size: 15px;
-        letter-spacing: 0.06em;
-        text-transform: uppercase;
-        padding: 10px 16px;
-        border: 1px solid var(--racing-green);
-        background: var(--racing-green);
-        color: var(--parchment);
-        cursor: pointer;
-      }
-
-      .slot button.cancel {
-        background: transparent;
-        color: var(--racing-green);
-      }
-
-      .slot button.confirm:hover {
-        background: var(--forest-green);
-        border-color: var(--forest-green);
-      }
-
-      .slot button[disabled] {
-        opacity: 0.6;
-        cursor: wait;
-      }
-
-      .slot.just-claimed {
-        animation: settle 600ms ease-out;
-      }
-
-      @keyframes settle {
-        0% {
-          background: var(--mead);
-          color: var(--racing-green);
-        }
-        100% {
-          background: rgba(0, 54, 34, 0.06);
-          color: rgba(0, 54, 34, 0.55);
-        }
-      }
-
-      .empty-state,
-      .loading {
-        text-align: center;
-        padding: 80px 20px;
-        font-style: italic;
-        color: var(--copper);
-        font-size: 20px;
-      }
-
-      .error-banner {
-        background: var(--oxblood);
-        color: var(--parchment);
-        text-align: center;
-        padding: 12px 16px;
-        font-family: var(--serif-body);
-        font-size: 16px;
-        margin-bottom: 24px;
-      }
-
-      footer {
-        margin-top: 80px;
-        padding: 24px;
-        text-align: center;
-        color: rgba(0, 54, 34, 0.5);
-        font-size: 14px;
-        font-family: var(--serif-display);
-        letter-spacing: 0.1em;
-      }
-    </style>
+    <link rel="stylesheet" href="/styles.css" />
   </head>
   <body>
     <header class="school">Trinity Classical Academy</header>
@@ -301,13 +23,12 @@
         const root = document.getElementById("root");
 
         function getEventId() {
-          // Path is "/<event_id>" — empty for root.
           const path = window.location.pathname.replace(/^\/+|\/+$/g, "");
           return path || null;
         }
 
         function escapeHtml(s) {
-          return String(s)
+          return String(s ?? "")
             .replace(/&/g, "&amp;")
             .replace(/</g, "&lt;")
             .replace(/>/g, "&gt;")
@@ -318,11 +39,7 @@
         async function fetchJson(url, options) {
           const r = await fetch(url, options);
           let data = null;
-          try {
-            data = await r.json();
-          } catch {
-            // Fall through; data stays null.
-          }
+          try { data = await r.json(); } catch { /* ignore */ }
           if (!r.ok) {
             const err = new Error((data && data.error) || `request_failed_${r.status}`);
             err.status = r.status;
@@ -332,54 +49,47 @@
           return data;
         }
 
-        function bookingKey(date, time) {
-          return `${date}|${time}`;
-        }
+        function bookingKey(date, time) { return `${date}|${time}`; }
 
-        // Local-only record of bookings made from THIS browser. Names are
-        // never returned by the public bookings API; we look them up here
-        // so the user can see their own claim labeled.
-        function ownStorageKey(eventId) {
-          return `tca-signup:own:${eventId}`;
-        }
+        function ownStorageKey(eventId) { return `tca-signup:own:${eventId}`; }
         function loadOwn(eventId) {
           try {
             const raw = window.localStorage.getItem(ownStorageKey(eventId));
             return raw ? JSON.parse(raw) : {};
-          } catch {
-            return {};
-          }
+          } catch { return {}; }
         }
         function saveOwn(eventId, own) {
-          try {
-            window.localStorage.setItem(ownStorageKey(eventId), JSON.stringify(own));
-          } catch {
-            // localStorage may be unavailable (private mode quotas); silently skip.
-          }
+          try { window.localStorage.setItem(ownStorageKey(eventId), JSON.stringify(own)); } catch {}
         }
 
         let state = {
           event: null,
-          bookings: {},
-          own: {}, // { "<date>|<time>": "<name>" } from localStorage
+          bookings: {}, // { "date|time": { claimed: N } }
+          own: {},      // { "date|time": { bookingId, name } }
           eventId: null,
-          editing: null, // { date, time }
+          editing: null,
           submitting: false,
           error: null,
+          confirmation: null, // { date, time, bookingId, name, slotLabel, dateLabel, icsUrl }
         };
 
-        function setState(patch) {
-          state = { ...state, ...patch };
-          render();
-        }
+        function setState(patch) { state = { ...state, ...patch }; render(); }
 
         async function refreshBookings(eventId) {
           try {
             const data = await fetchJson(`/api/events/${encodeURIComponent(eventId)}/bookings`);
             return data.bookings || {};
-          } catch (e) {
-            return state.bookings;
-          }
+          } catch { return state.bookings; }
+        }
+
+        function findSlot(time) {
+          return (state.event && state.event.slots || []).find((s) => s.time === time);
+        }
+        function findDate(date) {
+          return (state.event && state.event.dates || []).find((d) => d.date === date);
+        }
+        function slotCapacity(slot) {
+          return Number.isInteger(slot.capacity) && slot.capacity >= 1 ? slot.capacity : 1;
         }
 
         function render() {
@@ -394,59 +104,38 @@
           }
 
           const event = state.event;
-          const dateCount = event.dates.length;
-
           let html = `
             <section class="event-header">
               <h1 class="event-title">${escapeHtml(event.title)}</h1>
-              <hr class="event-rule" />
+              <hr class="rule" />
               <p class="event-description">${escapeHtml(event.description || "")}</p>
+              ${renderMetaRow(event)}
             </section>
           `;
+
+          if (state.confirmation) {
+            const c = state.confirmation;
+            html += `
+              <div class="success-banner">
+                You're signed up — <strong>${escapeHtml(c.dateLabel)} at ${escapeHtml(c.slotLabel)}</strong>.
+                <br/>
+                <a href="${escapeHtml(c.icsUrl)}" download>Add to calendar</a>
+              </div>
+            `;
+          }
 
           if (state.error) {
             html += `<div class="error-banner">${escapeHtml(state.error)}</div>`;
           }
 
-          html += `<div class="dates-grid" style="--date-count:${dateCount}">`;
+          html += `<div class="dates-grid" style="--date-count:${event.dates.length}">`;
           for (const d of event.dates) {
-            html += `<div class="date-column"><h2>${escapeHtml(d.label || d.date)}</h2>`;
-            html += `<div class="date-sub">${escapeHtml(d.date)}</div>`;
-            html += `<div class="slots">`;
+            html += `<div class="date-column">
+              <h2>${escapeHtml(d.label || d.date)}</h2>
+              <div class="date-sub">${escapeHtml(d.date)}</div>
+              <div class="slots">`;
             for (const s of event.slots) {
-              const key = bookingKey(d.date, s.time);
-              const booking = state.bookings[key];
-              const isEditing =
-                state.editing && state.editing.date === d.date && state.editing.time === s.time;
-
-              if (booking) {
-                const ownName = state.own[key];
-                const labelHtml = ownName
-                  ? `<span class="slot-cta own">— ${escapeHtml(ownName)} (you)</span>`
-                  : `<span class="slot-cta">Claimed</span>`;
-                html += `
-                  <div class="slot claimed${ownName ? " own" : ""}">
-                    <span class="slot-time">${escapeHtml(s.label || s.time)}</span>
-                    ${labelHtml}
-                  </div>`;
-              } else if (isEditing) {
-                const submitting = state.submitting ? "disabled" : "";
-                html += `
-                  <div class="slot editing" data-date="${escapeHtml(d.date)}" data-time="${escapeHtml(s.time)}">
-                    <span class="slot-time">${escapeHtml(s.label || s.time)}</span>
-                    <div class="editing-row">
-                      <input type="text" placeholder="Your name" autofocus maxlength="80" data-input ${submitting} />
-                      <button class="confirm" data-confirm ${submitting}>${state.submitting ? "Saving…" : "Confirm"}</button>
-                      <button class="cancel" data-cancel ${submitting}>Cancel</button>
-                    </div>
-                  </div>`;
-              } else {
-                html += `
-                  <button class="slot" data-claim data-date="${escapeHtml(d.date)}" data-time="${escapeHtml(s.time)}">
-                    <span class="slot-time">${escapeHtml(s.label || s.time)}</span>
-                    <span class="slot-cta">Tap to claim</span>
-                  </button>`;
-              }
+              html += renderSlot(d, s);
             }
             html += `</div></div>`;
           }
@@ -456,83 +145,206 @@
           attachHandlers();
         }
 
+        function renderMetaRow(event) {
+          const items = [];
+          if (event.host) items.push(`Hosted by ${escapeHtml(event.host)}`);
+          if (event.location) items.push(escapeHtml(event.location));
+          if (event.slotDurationMinutes) items.push(`${event.slotDurationMinutes}-minute slots`);
+          if (!items.length) return "";
+          return `<div class="meta-row">${items.map((s) => `<span>${s}</span>`).join("")}</div>`;
+        }
+
+        function renderSlot(d, s) {
+          const key = bookingKey(d.date, s.time);
+          const claimed = (state.bookings[key] && state.bookings[key].claimed) || 0;
+          const capacity = slotCapacity(s);
+          const own = state.own[key];
+          const isEditing = state.editing && state.editing.date === d.date && state.editing.time === s.time;
+          const submitting = state.submitting && isEditing;
+          const timeLabel = escapeHtml(s.label || s.time);
+
+          if (isEditing) {
+            const showEmail = !!state.event.captureEmail;
+            return `
+              <div class="slot editing" data-date="${escapeHtml(d.date)}" data-time="${escapeHtml(s.time)}">
+                <span class="slot-time">${timeLabel}</span>
+                <div class="editing-row">
+                  <input type="text" placeholder="Your name" autofocus maxlength="80" data-input ${submitting ? "disabled" : ""} />
+                  ${showEmail
+                    ? `<input type="email" placeholder="Email (for confirmation)" maxlength="120" data-email ${submitting ? "disabled" : ""} />`
+                    : ""}
+                  <button class="btn confirm" data-confirm ${submitting ? "disabled" : ""}>${submitting ? "Saving…" : "Confirm"}</button>
+                  <button class="btn ghost cancel" data-cancel ${submitting ? "disabled" : ""}>Cancel</button>
+                </div>
+              </div>`;
+          }
+
+          if (own) {
+            const cta = capacity > 1
+              ? `— ${escapeHtml(own.name)} (you, ${claimed}/${capacity})`
+              : `— ${escapeHtml(own.name)} (you)`;
+            return `
+              <div class="slot claimed own">
+                <span class="slot-time">${timeLabel}</span>
+                <span class="slot-cta">${cta}</span>
+                <button class="release" data-release data-date="${escapeHtml(d.date)}" data-time="${escapeHtml(s.time)}">Release</button>
+              </div>`;
+          }
+
+          if (claimed >= capacity) {
+            const text = capacity === 1 ? "Claimed" : `Full (${claimed}/${capacity})`;
+            return `
+              <div class="slot claimed">
+                <span class="slot-time">${timeLabel}</span>
+                <span class="slot-cta">${text}</span>
+              </div>`;
+          }
+
+          if (capacity > 1) {
+            return `
+              <button class="slot partial" data-claim data-date="${escapeHtml(d.date)}" data-time="${escapeHtml(s.time)}">
+                <span class="slot-time">${timeLabel}</span>
+                <span class="slot-cta">${claimed}/${capacity} claimed — tap to claim</span>
+              </button>`;
+          }
+
+          return `
+            <button class="slot" data-claim data-date="${escapeHtml(d.date)}" data-time="${escapeHtml(s.time)}">
+              <span class="slot-time">${timeLabel}</span>
+              <span class="slot-cta">Tap to claim</span>
+            </button>`;
+        }
+
         function attachHandlers() {
           root.querySelectorAll("[data-claim]").forEach((el) => {
             el.addEventListener("click", () => {
               setState({
                 editing: { date: el.dataset.date, time: el.dataset.time },
                 error: null,
+                confirmation: null,
               });
             });
+          });
+
+          root.querySelectorAll("[data-release]").forEach((el) => {
+            el.addEventListener("click", () => releaseSlot(el.dataset.date, el.dataset.time));
           });
 
           const editingEl = root.querySelector(".slot.editing");
           if (editingEl) {
             const input = editingEl.querySelector("[data-input]");
+            const emailInput = editingEl.querySelector("[data-email]");
             const confirmBtn = editingEl.querySelector("[data-confirm]");
             const cancelBtn = editingEl.querySelector("[data-cancel]");
 
-            const submit = async () => {
-              const name = (input.value || "").trim();
-              if (!name) {
-                input.focus();
-                return;
-              }
-              const date = state.editing.date;
-              const time = state.editing.time;
-              setState({ submitting: true, error: null });
-              try {
-                await fetchJson(
-                  `/api/events/${encodeURIComponent(state.eventId)}/book`,
-                  {
-                    method: "POST",
-                    headers: { "content-type": "application/json" },
-                    body: JSON.stringify({ date, time, name }),
-                  },
-                );
-                // Cloudflare KV is eventually consistent (~60s global propagation),
-                // so the bookings list endpoint may not reflect this write yet.
-                // Mark the slot claimed locally and remember the name we used.
-                const k = bookingKey(date, time);
-                const bookings = { ...state.bookings, [k]: { claimed: true } };
-                const own = { ...state.own, [k]: name };
-                saveOwn(state.eventId, own);
-                setState({ submitting: false, editing: null, bookings, own });
-              } catch (e) {
-                if (e.status === 409) {
-                  const k = bookingKey(date, time);
-                  const bookings = { ...state.bookings, [k]: { claimed: true } };
-                  setState({
-                    submitting: false,
-                    editing: null,
-                    bookings,
-                    error: "That slot was just claimed by someone else. Please pick another.",
-                  });
-                } else {
-                  setState({
-                    submitting: false,
-                    error: "Couldn't save your reservation. Please try again.",
-                  });
-                }
-              }
-            };
-
+            const submit = () => doSubmit(input, emailInput);
             confirmBtn.addEventListener("click", submit);
             cancelBtn.addEventListener("click", () => setState({ editing: null, error: null }));
             input.addEventListener("keydown", (e) => {
               if (e.key === "Enter") submit();
               if (e.key === "Escape") setState({ editing: null, error: null });
             });
+            if (emailInput) {
+              emailInput.addEventListener("keydown", (e) => {
+                if (e.key === "Enter") submit();
+                if (e.key === "Escape") setState({ editing: null, error: null });
+              });
+            }
             if (input && !state.submitting) input.focus();
+          }
+        }
+
+        async function doSubmit(input, emailInput) {
+          const name = (input.value || "").trim();
+          const email = emailInput ? (emailInput.value || "").trim() : "";
+          if (!name) { input.focus(); return; }
+          if (state.event.captureEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            setState({ error: "Please enter a valid email." });
+            if (emailInput) emailInput.focus();
+            return;
+          }
+          const date = state.editing.date;
+          const time = state.editing.time;
+          setState({ submitting: true, error: null });
+          try {
+            const result = await fetchJson(
+              `/api/events/${encodeURIComponent(state.eventId)}/book`,
+              {
+                method: "POST",
+                headers: { "content-type": "application/json" },
+                body: JSON.stringify({ date, time, name, email: email || undefined }),
+              },
+            );
+            const k = bookingKey(date, time);
+            const claimed = ((state.bookings[k] && state.bookings[k].claimed) || 0) + 1;
+            const bookings = { ...state.bookings, [k]: { claimed } };
+            const own = { ...state.own, [k]: { bookingId: result.bookingId, name } };
+            saveOwn(state.eventId, own);
+            const slot = findSlot(time);
+            const dateRow = findDate(date);
+            const confirmation = {
+              date, time,
+              bookingId: result.bookingId,
+              name,
+              slotLabel: (slot && slot.label) || time,
+              dateLabel: (dateRow && dateRow.label) || date,
+              icsUrl: result.icsUrl,
+            };
+            setState({ submitting: false, editing: null, bookings, own, confirmation });
+          } catch (e) {
+            if (e.status === 409) {
+              const k = bookingKey(date, time);
+              const slot = findSlot(time);
+              const cap = slot ? slotCapacity(slot) : 1;
+              const bookings = { ...state.bookings, [k]: { claimed: cap } };
+              setState({
+                submitting: false,
+                editing: null,
+                bookings,
+                error: "That slot just filled up. Please pick another.",
+              });
+            } else if (e.data && e.data.error === "email_required") {
+              setState({ submitting: false, error: "An email is required for this event." });
+            } else if (e.data && e.data.error === "invalid_email") {
+              setState({ submitting: false, error: "That email doesn't look right — please double-check." });
+            } else {
+              setState({ submitting: false, error: "Couldn't save your reservation. Please try again." });
+            }
+          }
+        }
+
+        async function releaseSlot(date, time) {
+          const k = bookingKey(date, time);
+          const own = state.own[k];
+          if (!own) return;
+          if (!window.confirm("Release this slot? You can claim a different one if you change your mind.")) return;
+          try {
+            await fetchJson(`/api/events/${encodeURIComponent(state.eventId)}/unbook`, {
+              method: "POST",
+              headers: { "content-type": "application/json" },
+              body: JSON.stringify({ date, time, bookingId: own.bookingId }),
+            });
+            const newOwn = { ...state.own };
+            delete newOwn[k];
+            saveOwn(state.eventId, newOwn);
+            const claimed = Math.max(0, ((state.bookings[k] && state.bookings[k].claimed) || 1) - 1);
+            const bookings = { ...state.bookings };
+            if (claimed === 0) delete bookings[k];
+            else bookings[k] = { claimed };
+            setState({
+              own: newOwn,
+              bookings,
+              confirmation: null,
+              error: null,
+            });
+          } catch {
+            setState({ error: "Couldn't release that slot. Please try again." });
           }
         }
 
         async function init() {
           const eventId = getEventId();
-          if (!eventId) {
-            setState({ eventId: null });
-            return;
-          }
+          if (!eventId) { setState({ eventId: null }); return; }
           setState({ eventId });
 
           try {
@@ -549,16 +361,19 @@
             return;
           }
 
-          // Poll for booking updates.
           setInterval(async () => {
             if (!state.eventId || state.submitting) return;
             const polled = await refreshBookings(state.eventId);
-            // Merge: keep any locally-known booking that hasn't yet shown up
-            // server-side (KV is eventually consistent — propagation can take
-            // up to ~60s, so a fresh write from this client may be missing
-            // from a poll served by a different edge).
-            const bookings = { ...state.bookings, ...polled };
-            setState({ bookings });
+            // Merge: keep locally-known counts at least as high as polled
+            // (KV is eventually consistent — your own write may not be
+            // visible to a different edge for up to ~60s).
+            const merged = { ...polled };
+            for (const [k, v] of Object.entries(state.bookings)) {
+              const pCount = (merged[k] && merged[k].claimed) || 0;
+              const lCount = (v && v.claimed) || 0;
+              if (lCount > pCount) merged[k] = { claimed: lCount };
+            }
+            setState({ bookings: merged });
           }, POLL_MS);
         }
 

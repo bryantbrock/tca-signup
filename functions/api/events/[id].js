@@ -1,19 +1,15 @@
-// GET /api/events/:id — return event config.
+// GET /api/events/:id — return public event config (adminToken stripped).
+
+import { json, publicEvent } from "../../_lib.js";
 
 export async function onRequestGet({ params, env }) {
-  const id = params.id;
-  const raw = await env.TCA_SIGNUPS.get(`event:${id}`);
-  if (!raw) {
-    return json({ error: "not_found" }, 404);
+  const raw = await env.TCA_SIGNUPS.get(`event:${params.id}`);
+  if (!raw) return json({ error: "not_found" }, 404);
+  let event;
+  try {
+    event = JSON.parse(raw);
+  } catch {
+    return json({ error: "event_corrupt" }, 500);
   }
-  return new Response(raw, {
-    headers: { "content-type": "application/json" },
-  });
-}
-
-function json(body, status = 200) {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: { "content-type": "application/json" },
-  });
+  return json(publicEvent(event));
 }

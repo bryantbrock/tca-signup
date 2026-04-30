@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Admin — Trinity Classical Academy</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Crimson+Pro:ital,wght@0,400;0,500;0,600;1,400&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+  </head>
+  <body>
+    <header class="school">Trinity Classical Academy — Admin</header>
+    <main id="root">
+      <div class="loading">Loading…</div>
+    </main>
+    <script>
+      (function () {
+        const root = document.getElementById("root");
+
+        function escapeHtml(s) {
+          return String(s ?? "")
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#39;");
+        }
+
+        function getEventIdFromPath() {
+          // Path: /<eventId>/admin
+          const path = window.location.pathname.replace(/^\/+|\/+$/g, "");
+          const parts = path.split("/");
+          if (parts.length >= 2 && parts[parts.length - 1] === "admin") {
+            return parts[parts.length - 2];
+          }
+          return null;
+        }
+
+        function getToken() {
+          const url = new URL(window.location.href);
+          let t = url.searchParams.get("token");
+          if (t) return t;
+          // Allow ?t= as a shorthand.
+          t = url.searchParams.get("t");
+          return t;
+        }
+
+        async function fetchJson(url, options) {
+          const r = await fetch(url, options);
+          let data = null;
+          try { data = await r.json(); } catch {}
+          if (!r.ok) {
+            const err = new Error((data && data.error) || `request_failed_${r.status}`);
+            err.status = r.status;
+            err.data = data;
+            throw err;
+          }
+          return data;
+        }
+
+        function renderTokenPrompt(eventId) {
+          root.innerHTML = `
+            <section class="event-header">
+              <h1 class="event-title">Admin</h1>
+              <hr class="rule" />
+              <p class="event-description">Enter the admin token for <strong>${escapeHtml(eventId)}</strong>.</p>
+            </section>
+            <div class="form-grid">
+              <div>
+                <label for="token-input">Admin token</label>
+                <input id="token-input" type="text" placeholder="hex string" autofocus />
+              </div>
+              <div>
+                <button class="btn" id="token-submit">Open</button>
+              </div>
+            </div>
+          `;
+          const input = document.getElementById("token-input");
+          const btn = document.getElementById("token-submit");
+          const go = () => {
+            const v = (input.value || "").trim();
+            if (!v) return;
+            const url = new URL(window.location.href);
+            url.searchParams.set("token", v);
+            window.location.href = url.toString();
+          };
+          btn.addEventListener("click", go);
+          input.addEventListener("keydown", (e) => { if (e.key === "Enter") go(); });
+        }
+
+        function renderError(message) {
+          root.innerHTML = `<div class="empty-state">${escapeHtml(message)}</div>`;
+        }
+
+        function renderQrCode(targetEl, url) {
+          if (typeof window.qrcode !== "function") {
+            targetEl.textContent = url;
+            return;
+          }
+          const qr = window.qrcode(0, "M");
+          qr.addData(url);
+          qr.make();
+          // Use createImgTag with a 4x scale and 8 margin for printability.
+          targetEl.innerHTML = qr.createImgTag(4, 8) + `<div class="url">${escapeHtml(url)}</div>`;
+        }
+
+        function renderAdmin({ event, bookings, eventId, token }) {
+          const totalCapacity = (event.dates || []).length * (event.slots || []).reduce((acc, s) => acc + (s.capacity || 1), 0);
+          const claimedCount = bookings.length;
+          const eventUrl = `${window.location.origin}/${event.id}`;
+          const csvUrl = `/api/events/${encodeURIComponent(eventId)}/admin/export-csv?token=${encodeURIComponent(token)}`;
+
+          root.innerHTML = `
+            <section class="event-header">
+              <h1 class="event-title">${escapeHtml(event.title)}</h1>
+              <hr class="rule" />
+              <p class="event-description">
+                <a href="${escapeHtml(eventUrl)}">${escapeHtml(eventUrl)}</a>
+              </p>
+              <div class="meta-row">
+                <span>${claimedCount} of ${totalCapacity} slots claimed</span>
+                ${event.location ? `<span>${escapeHtml(event.location)}</span>` : ""}
+                ${event.host ? `<span>Host: ${escapeHtml(event.host)}</span>` : ""}
+                ${event.contactEmail ? `<span>Contact: ${escapeHtml(event.contactEmail)}</span>` : ""}
+              </div>
+            </section>
+
+            <div class="admin-toolbar">
+              <a class="btn" href="${escapeHtml(csvUrl)}" download>Download CSV</a>
+              <a class="btn ghost" href="${escapeHtml(eventUrl)}" target="_blank" rel="noopener">View public page ↗</a>
+              <button class="btn ghost" id="copy-link">Copy public link</button>
+            </div>
+
+            <h2 style="font-family:var(--serif-display);font-weight:500;font-size:24px;margin:32px 0 8px;">Share</h2>
+            <div class="qr-card" id="qr-card"></div>
+
+            <h2 style="font-family:var(--serif-display);font-weight:500;font-size:24px;margin:32px 0 8px;">Bookings</h2>
+            ${
+              bookings.length === 0
+                ? `<p style="font-style:italic;color:var(--copper);">No signups yet.</p>`
+                : `<table class="bookings">
+                    <thead><tr><th>When</th><th>Name</th><th>Email</th><th>Claimed at</th></tr></thead>
+                    <tbody>${bookings.map(renderBookingRow).join("")}</tbody>
+                  </table>`
+            }
+          `;
+
+          renderQrCode(document.getElementById("qr-card"), eventUrl);
+
+          const copyBtn = document.getElementById("copy-link");
+          if (copyBtn) {
+            copyBtn.addEventListener("click", async () => {
+              try {
+                await navigator.clipboard.writeText(eventUrl);
+                copyBtn.textContent = "Copied!";
+                setTimeout(() => { copyBtn.textContent = "Copy public link"; }, 1500);
+              } catch {
+                copyBtn.textContent = "Couldn't copy";
+              }
+            });
+          }
+        }
+
+        function renderBookingRow(b) {
+          const dateLabel = b.date;
+          const time = b.time;
+          const claimedAt = b.claimedAt ? new Date(b.claimedAt).toLocaleString() : "";
+          return `<tr>
+            <td>${escapeHtml(dateLabel)} · ${escapeHtml(time)}</td>
+            <td>${escapeHtml(b.name || "")}</td>
+            <td>${escapeHtml(b.email || "")}</td>
+            <td style="font-size:14px;color:var(--copper);">${escapeHtml(claimedAt)}</td>
+          </tr>`;
+        }
+
+        async function init() {
+          const eventId = getEventIdFromPath();
+          if (!eventId) { renderError("This page expects a URL like /<event_id>/admin."); return; }
+          const token = getToken();
+          if (!token) { renderTokenPrompt(eventId); return; }
+          try {
+            const data = await fetchJson(`/api/events/${encodeURIComponent(eventId)}/admin?token=${encodeURIComponent(token)}`);
+            renderAdmin({ event: data.event, bookings: data.bookings, eventId, token });
+          } catch (e) {
+            if (e.status === 401) renderError("Wrong admin token for this event.");
+            else if (e.status === 404) renderError(`No event found: ${eventId}`);
+            else renderError("Couldn't load admin data.");
+          }
+        }
+
+        init();
+      })();
+    </script>
+  </body>
+</html>

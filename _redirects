@@ -1,0 +1,3 @@
+/admin/new          /new            200
+/:eventId/admin     /admin          200
+/*                  /index.html     200

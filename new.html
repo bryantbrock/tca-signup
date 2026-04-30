@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>New event — Trinity Classical Academy</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Crimson+Pro:ital,wght@0,400;0,500;0,600;1,400&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header class="school">Trinity Classical Academy — New Event</header>
+    <main id="root"></main>
+    <script>
+      (function () {
+        const root = document.getElementById("root");
+
+        function escapeHtml(s) {
+          return String(s ?? "")
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#39;");
+        }
+
+        function renderForm() {
+          root.innerHTML = `
+            <section class="event-header">
+              <h1 class="event-title">Create event</h1>
+              <hr class="rule" />
+              <p class="event-description">Configure a new sign-up. After creation you'll get a unique admin URL — save it.</p>
+            </section>
+
+            <form class="form-grid" id="create-form">
+              <div>
+                <label for="adminToken">Master admin token</label>
+                <input type="password" id="adminToken" required autocomplete="off" />
+                <div class="field-hint">The shared TCA admin secret. Required to create events.</div>
+              </div>
+
+              <hr class="rule" style="margin:8px auto;" />
+
+              <div class="row two">
+                <div>
+                  <label for="id">Event ID (URL slug)</label>
+                  <input type="text" id="id" required pattern="[a-z0-9][a-z0-9-]*" placeholder="fall-orientation-2026" />
+                </div>
+                <div>
+                  <label for="title">Title</label>
+                  <input type="text" id="title" required placeholder="Fall Parent Orientation" />
+                </div>
+              </div>
+
+              <div>
+                <label for="description">Description</label>
+                <textarea id="description" placeholder="Pick a 30-minute slot to come meet your child's teacher."></textarea>
+              </div>
+
+              <div class="row two">
+                <div>
+                  <label for="location">Location</label>
+                  <input type="text" id="location" placeholder="Trinity Classical Academy" />
+                </div>
+                <div>
+                  <label for="host">Host</label>
+                  <input type="text" id="host" placeholder="Bryant Brock" />
+                </div>
+              </div>
+
+              <div class="row two">
+                <div>
+                  <label for="contactEmail">Organizer email</label>
+                  <input type="email" id="contactEmail" placeholder="organizer@school.org" />
+                  <div class="field-hint">Gets a notification each time someone signs up.</div>
+                </div>
+                <div>
+                  <label for="slotDurationMinutes">Slot length (minutes)</label>
+                  <input type="number" id="slotDurationMinutes" value="30" min="5" max="600" />
+                </div>
+              </div>
+
+              <div>
+                <label>
+                  <input type="checkbox" id="captureEmail" /> Require attendees to enter their email
+                </label>
+                <div class="field-hint">If checked, attendees get a confirmation email with calendar invite.</div>
+              </div>
+
+              <hr class="rule" style="margin:8px auto;" />
+
+              <div>
+                <label for="dates">Dates (one per line, format: YYYY-MM-DD = label)</label>
+                <textarea id="dates" required placeholder="2026-08-12 = Wednesday, Aug 12&#10;2026-08-13 = Thursday, Aug 13"></textarea>
+              </div>
+
+              <div>
+                <label for="slots">Slot times (one per line, format: HH:MM = label [x capacity])</label>
+                <textarea id="slots" required placeholder="09:00 = 9:00 AM&#10;09:30 = 9:30 AM&#10;10:00 = 10:00 AM x 5"></textarea>
+                <div class="field-hint">Add "x N" at the end of a line to allow N people in that slot. Default is 1.</div>
+              </div>
+
+              <div>
+                <button type="submit" class="btn" id="submit-btn">Create event</button>
+              </div>
+
+              <div id="form-error" class="error-banner" style="display:none;"></div>
+            </form>
+          `;
+          document.getElementById("create-form").addEventListener("submit", onSubmit);
+        }
+
+        function renderSuccess(event) {
+          const origin = window.location.origin;
+          const publicUrl = `${origin}/${event.id}`;
+          const adminUrl = `${origin}/${event.id}/admin?token=${event.adminToken}`;
+          root.innerHTML = `
+            <section class="event-header">
+              <h1 class="event-title">Created</h1>
+              <hr class="rule" />
+              <p class="event-description"><strong>${escapeHtml(event.title)}</strong> is live.</p>
+            </section>
+            <div class="success-banner" style="text-align:left;">
+              <p><strong>Public sign-up URL</strong> (share this):</p>
+              <p><a href="${escapeHtml(publicUrl)}" target="_blank">${escapeHtml(publicUrl)}</a></p>
+              <hr class="rule" />
+              <p><strong>Admin URL</strong> (private — save it now, the token won't be shown again):</p>
+              <p><a href="${escapeHtml(adminUrl)}" target="_blank">${escapeHtml(adminUrl)}</a></p>
+            </div>
+            <div class="admin-toolbar">
+              <a class="btn" href="${escapeHtml(adminUrl)}">Open admin</a>
+              <a class="btn ghost" href="/admin/new">Create another</a>
+            </div>
+          `;
+        }
+
+        function showFormError(msg) {
+          const el = document.getElementById("form-error");
+          el.textContent = msg;
+          el.style.display = "block";
+        }
+
+        function parseDates(raw) {
+          const lines = raw.split("\n").map((l) => l.trim()).filter(Boolean);
+          return lines.map((line) => {
+            const [date, ...labelParts] = line.split("=");
+            return {
+              date: (date || "").trim(),
+              label: labelParts.join("=").trim() || (date || "").trim(),
+            };
+          });
+        }
+
+        function parseSlots(raw) {
+          const lines = raw.split("\n").map((l) => l.trim()).filter(Boolean);
+          return lines.map((line) => {
+            // Strip optional "x N" capacity at end.
+            let capacity = 1;
+            const capMatch = line.match(/\s+x\s*(\d+)\s*$/i);
+            if (capMatch) {
+              capacity = parseInt(capMatch[1], 10);
+              line = line.slice(0, capMatch.index).trim();
+            }
+            const [time, ...labelParts] = line.split("=");
+            return {
+              time: (time || "").trim(),
+              label: labelParts.join("=").trim() || (time || "").trim(),
+              capacity,
+            };
+          });
+        }
+
+        async function onSubmit(e) {
+          e.preventDefault();
+          const get = (id) => document.getElementById(id).value;
+          const adminToken = get("adminToken").trim();
+          const event = {
+            id: get("id").trim(),
+            title: get("title").trim(),
+            description: get("description").trim() || undefined,
+            location: get("location").trim() || undefined,
+            host: get("host").trim() || undefined,
+            contactEmail: get("contactEmail").trim() || undefined,
+            slotDurationMinutes: parseInt(get("slotDurationMinutes"), 10) || 30,
+            captureEmail: document.getElementById("captureEmail").checked,
+            dates: parseDates(get("dates")),
+            slots: parseSlots(get("slots")),
+          };
+
+          const btn = document.getElementById("submit-btn");
+          btn.disabled = true;
+          btn.textContent = "Creating…";
+          document.getElementById("form-error").style.display = "none";
+
+          try {
+            const r = await fetch("/api/events", {
+              method: "POST",
+              headers: {
+                "content-type": "application/json",
+                authorization: `Bearer ${adminToken}`,
+              },
+              body: JSON.stringify(event),
+            });
+            const data = await r.json().catch(() => ({}));
+            if (!r.ok) {
+              const map = {
+                unauthorized: "That admin token is wrong.",
+                admin_not_configured: "Admin token isn't configured on the server. Set ADMIN_TOKEN as a Pages secret.",
+                invalid_id: "Event ID must be lowercase letters, numbers, and dashes (and not 'admin', 'api', or 'new').",
+                exists: "An event with that ID already exists.",
+                invalid_date_format: "Each date line must start with a YYYY-MM-DD date.",
+                invalid_slot_format: "Each slot line must start with a HH:MM time.",
+                invalid_capacity: "Capacity must be a positive whole number.",
+                invalid_dates: "Add at least one date.",
+                invalid_slots: "Add at least one slot.",
+                invalid_title: "Add a title.",
+              };
+              const msg = map[data.error] || data.message || `Failed (${r.status})`;
+              showFormError(msg);
+              btn.disabled = false;
+              btn.textContent = "Create event";
+              return;
+            }
+            renderSuccess(data.event);
+          } catch {
+            showFormError("Network error — please try again.");
+            btn.disabled = false;
+            btn.textContent = "Create event";
+          }
+        }
+
+        renderForm();
+      })();
+    </script>
+  </body>
+</html>
