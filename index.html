@@ -1,0 +1,519 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Trinity Classical Academy</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Crimson+Pro:ital,wght@0,400;0,500;0,600;1,400&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --racing-green: #003622;
+        --forest-green: #276d33;
+        --mead: #dea06d;
+        --parchment: #fbf5e3;
+        --oxblood: #5f2412;
+        --copper: #a97142;
+
+        --serif-display: "Cormorant Garamond", "Times New Roman", serif;
+        --serif-body: "Crimson Pro", Georgia, serif;
+      }
+
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        background: var(--parchment);
+        color: var(--racing-green);
+        font-family: var(--serif-body);
+        font-size: 18px;
+        line-height: 1.5;
+      }
+
+      header.school {
+        border-bottom: 1px solid rgba(0, 54, 34, 0.18);
+        padding: 18px 24px;
+        text-align: center;
+        letter-spacing: 0.18em;
+        font-family: var(--serif-display);
+        font-weight: 600;
+        font-size: 14px;
+        text-transform: uppercase;
+        color: var(--forest-green);
+      }
+
+      main {
+        max-width: 980px;
+        margin: 0 auto;
+        padding: 56px 24px 96px;
+      }
+
+      .event-header {
+        text-align: center;
+        margin-bottom: 48px;
+      }
+
+      .event-title {
+        font-family: var(--serif-display);
+        font-weight: 600;
+        font-size: clamp(36px, 6vw, 56px);
+        line-height: 1.1;
+        margin: 0 0 12px;
+        color: var(--racing-green);
+      }
+
+      .event-rule {
+        width: 64px;
+        height: 1px;
+        background: var(--mead);
+        margin: 24px auto;
+        border: 0;
+      }
+
+      .event-description {
+        font-size: 19px;
+        max-width: 620px;
+        margin: 0 auto;
+        color: rgba(0, 54, 34, 0.78);
+      }
+
+      .dates-grid {
+        display: grid;
+        gap: 40px;
+        grid-template-columns: 1fr;
+      }
+
+      @media (min-width: 760px) {
+        .dates-grid {
+          grid-template-columns: repeat(var(--date-count, 1), 1fr);
+        }
+      }
+
+      .date-column h2 {
+        font-family: var(--serif-display);
+        font-size: 26px;
+        font-weight: 500;
+        text-align: center;
+        margin: 0 0 4px;
+        color: var(--oxblood);
+      }
+
+      .date-column .date-sub {
+        text-align: center;
+        font-style: italic;
+        color: var(--copper);
+        margin-bottom: 20px;
+        font-size: 15px;
+      }
+
+      .slots {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .slot {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 14px 18px;
+        border: 1px solid var(--racing-green);
+        background: transparent;
+        font-family: var(--serif-body);
+        font-size: 18px;
+        color: var(--racing-green);
+        cursor: pointer;
+        transition: background 180ms ease, color 180ms ease, border-color 180ms ease;
+        text-align: left;
+        width: 100%;
+      }
+
+      .slot:hover {
+        background: var(--mead);
+        color: var(--racing-green);
+        border-color: var(--mead);
+      }
+
+      .slot .slot-time {
+        font-weight: 500;
+      }
+
+      .slot .slot-cta {
+        font-style: italic;
+        font-size: 15px;
+        color: var(--forest-green);
+      }
+
+      .slot:hover .slot-cta {
+        color: var(--racing-green);
+      }
+
+      .slot.claimed {
+        cursor: default;
+        background: rgba(0, 54, 34, 0.06);
+        border-color: rgba(0, 54, 34, 0.2);
+        color: rgba(0, 54, 34, 0.55);
+      }
+
+      .slot.claimed:hover {
+        background: rgba(0, 54, 34, 0.06);
+        color: rgba(0, 54, 34, 0.55);
+        border-color: rgba(0, 54, 34, 0.2);
+      }
+
+      .slot.claimed .slot-cta {
+        color: rgba(0, 54, 34, 0.55);
+        font-style: italic;
+      }
+
+      .slot.editing {
+        background: var(--parchment);
+        border-color: var(--mead);
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+      }
+
+      .slot .editing-row {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+      }
+
+      .slot input[type="text"] {
+        flex: 1;
+        padding: 10px 12px;
+        border: 1px solid var(--racing-green);
+        background: var(--parchment);
+        font-family: var(--serif-body);
+        font-size: 17px;
+        color: var(--racing-green);
+        border-radius: 0;
+      }
+
+      .slot input[type="text"]:focus {
+        outline: 2px solid var(--mead);
+        outline-offset: -2px;
+      }
+
+      .slot button.confirm,
+      .slot button.cancel {
+        font-family: var(--serif-display);
+        font-size: 15px;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        padding: 10px 16px;
+        border: 1px solid var(--racing-green);
+        background: var(--racing-green);
+        color: var(--parchment);
+        cursor: pointer;
+      }
+
+      .slot button.cancel {
+        background: transparent;
+        color: var(--racing-green);
+      }
+
+      .slot button.confirm:hover {
+        background: var(--forest-green);
+        border-color: var(--forest-green);
+      }
+
+      .slot button[disabled] {
+        opacity: 0.6;
+        cursor: wait;
+      }
+
+      .slot.just-claimed {
+        animation: settle 600ms ease-out;
+      }
+
+      @keyframes settle {
+        0% {
+          background: var(--mead);
+          color: var(--racing-green);
+        }
+        100% {
+          background: rgba(0, 54, 34, 0.06);
+          color: rgba(0, 54, 34, 0.55);
+        }
+      }
+
+      .empty-state,
+      .loading {
+        text-align: center;
+        padding: 80px 20px;
+        font-style: italic;
+        color: var(--copper);
+        font-size: 20px;
+      }
+
+      .error-banner {
+        background: var(--oxblood);
+        color: var(--parchment);
+        text-align: center;
+        padding: 12px 16px;
+        font-family: var(--serif-body);
+        font-size: 16px;
+        margin-bottom: 24px;
+      }
+
+      footer {
+        margin-top: 80px;
+        padding: 24px;
+        text-align: center;
+        color: rgba(0, 54, 34, 0.5);
+        font-size: 14px;
+        font-family: var(--serif-display);
+        letter-spacing: 0.1em;
+      }
+    </style>
+  </head>
+  <body>
+    <header class="school">Trinity Classical Academy</header>
+    <main id="root">
+      <div class="loading">Loading…</div>
+    </main>
+    <footer>Soli Deo Gloria</footer>
+    <script>
+      (function () {
+        const POLL_MS = 10000;
+        const root = document.getElementById("root");
+
+        function getEventId() {
+          // Path is "/<event_id>" — empty for root.
+          const path = window.location.pathname.replace(/^\/+|\/+$/g, "");
+          return path || null;
+        }
+
+        function escapeHtml(s) {
+          return String(s)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#39;");
+        }
+
+        async function fetchJson(url, options) {
+          const r = await fetch(url, options);
+          let data = null;
+          try {
+            data = await r.json();
+          } catch {
+            // Fall through; data stays null.
+          }
+          if (!r.ok) {
+            const err = new Error((data && data.error) || `request_failed_${r.status}`);
+            err.status = r.status;
+            err.data = data;
+            throw err;
+          }
+          return data;
+        }
+
+        function bookingKey(date, time) {
+          return `${date}|${time}`;
+        }
+
+        let state = {
+          event: null,
+          bookings: {},
+          eventId: null,
+          editing: null, // { date, time }
+          submitting: false,
+          error: null,
+        };
+
+        function setState(patch) {
+          state = { ...state, ...patch };
+          render();
+        }
+
+        async function refreshBookings(eventId) {
+          try {
+            const data = await fetchJson(`/api/events/${encodeURIComponent(eventId)}/bookings`);
+            return data.bookings || {};
+          } catch (e) {
+            return state.bookings;
+          }
+        }
+
+        function render() {
+          if (!state.eventId) {
+            root.innerHTML =
+              '<div class="empty-state">No event selected.<br/><br/>Visit a specific event link to view its sign-up.</div>';
+            return;
+          }
+          if (!state.event) {
+            root.innerHTML = '<div class="loading">Loading…</div>';
+            return;
+          }
+
+          const event = state.event;
+          const dateCount = event.dates.length;
+
+          let html = `
+            <section class="event-header">
+              <h1 class="event-title">${escapeHtml(event.title)}</h1>
+              <hr class="event-rule" />
+              <p class="event-description">${escapeHtml(event.description || "")}</p>
+            </section>
+          `;
+
+          if (state.error) {
+            html += `<div class="error-banner">${escapeHtml(state.error)}</div>`;
+          }
+
+          html += `<div class="dates-grid" style="--date-count:${dateCount}">`;
+          for (const d of event.dates) {
+            html += `<div class="date-column"><h2>${escapeHtml(d.label || d.date)}</h2>`;
+            html += `<div class="date-sub">${escapeHtml(d.date)}</div>`;
+            html += `<div class="slots">`;
+            for (const s of event.slots) {
+              const key = bookingKey(d.date, s.time);
+              const booking = state.bookings[key];
+              const isEditing =
+                state.editing && state.editing.date === d.date && state.editing.time === s.time;
+
+              if (booking) {
+                html += `
+                  <div class="slot claimed">
+                    <span class="slot-time">${escapeHtml(s.label || s.time)}</span>
+                    <span class="slot-cta">— ${escapeHtml(booking.name)}</span>
+                  </div>`;
+              } else if (isEditing) {
+                const submitting = state.submitting ? "disabled" : "";
+                html += `
+                  <div class="slot editing" data-date="${escapeHtml(d.date)}" data-time="${escapeHtml(s.time)}">
+                    <span class="slot-time">${escapeHtml(s.label || s.time)}</span>
+                    <div class="editing-row">
+                      <input type="text" placeholder="Your name" autofocus maxlength="80" data-input ${submitting} />
+                      <button class="confirm" data-confirm ${submitting}>${state.submitting ? "Saving…" : "Confirm"}</button>
+                      <button class="cancel" data-cancel ${submitting}>Cancel</button>
+                    </div>
+                  </div>`;
+              } else {
+                html += `
+                  <button class="slot" data-claim data-date="${escapeHtml(d.date)}" data-time="${escapeHtml(s.time)}">
+                    <span class="slot-time">${escapeHtml(s.label || s.time)}</span>
+                    <span class="slot-cta">Tap to claim</span>
+                  </button>`;
+              }
+            }
+            html += `</div></div>`;
+          }
+          html += `</div>`;
+
+          root.innerHTML = html;
+          attachHandlers();
+        }
+
+        function attachHandlers() {
+          root.querySelectorAll("[data-claim]").forEach((el) => {
+            el.addEventListener("click", () => {
+              setState({
+                editing: { date: el.dataset.date, time: el.dataset.time },
+                error: null,
+              });
+            });
+          });
+
+          const editingEl = root.querySelector(".slot.editing");
+          if (editingEl) {
+            const input = editingEl.querySelector("[data-input]");
+            const confirmBtn = editingEl.querySelector("[data-confirm]");
+            const cancelBtn = editingEl.querySelector("[data-cancel]");
+
+            const submit = async () => {
+              const name = (input.value || "").trim();
+              if (!name) {
+                input.focus();
+                return;
+              }
+              setState({ submitting: true, error: null });
+              try {
+                await fetchJson(`/api/events/${encodeURIComponent(state.eventId)}/book`, {
+                  method: "POST",
+                  headers: { "content-type": "application/json" },
+                  body: JSON.stringify({
+                    date: state.editing.date,
+                    time: state.editing.time,
+                    name,
+                  }),
+                });
+                const bookings = await refreshBookings(state.eventId);
+                setState({ submitting: false, editing: null, bookings });
+              } catch (e) {
+                if (e.status === 409) {
+                  const bookings = await refreshBookings(state.eventId);
+                  setState({
+                    submitting: false,
+                    editing: null,
+                    bookings,
+                    error: "That slot was just claimed by someone else. Please pick another.",
+                  });
+                } else {
+                  setState({
+                    submitting: false,
+                    error: "Couldn't save your reservation. Please try again.",
+                  });
+                }
+              }
+            };
+
+            confirmBtn.addEventListener("click", submit);
+            cancelBtn.addEventListener("click", () => setState({ editing: null, error: null }));
+            input.addEventListener("keydown", (e) => {
+              if (e.key === "Enter") submit();
+              if (e.key === "Escape") setState({ editing: null, error: null });
+            });
+            if (input && !state.submitting) input.focus();
+          }
+        }
+
+        async function init() {
+          const eventId = getEventId();
+          if (!eventId) {
+            setState({ eventId: null });
+            return;
+          }
+          setState({ eventId });
+
+          try {
+            const event = await fetchJson(`/api/events/${encodeURIComponent(eventId)}`);
+            const bookings = await refreshBookings(eventId);
+            setState({ event, bookings });
+          } catch (e) {
+            if (e.status === 404) {
+              root.innerHTML = `<div class="empty-state">No event found at <code>/${escapeHtml(eventId)}</code>.</div>`;
+            } else {
+              root.innerHTML = `<div class="empty-state">Couldn't load this event. Please refresh.</div>`;
+            }
+            return;
+          }
+
+          // Poll for booking updates.
+          setInterval(async () => {
+            if (!state.eventId || state.submitting) return;
+            const bookings = await refreshBookings(state.eventId);
+            // Avoid stomping editing UI; only update bookings map.
+            setState({ bookings });
+          }, POLL_MS);
+        }
+
+        init();
+      })();
+    </script>
+  </body>
+</html>

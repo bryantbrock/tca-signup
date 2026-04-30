@@ -1,0 +1,10 @@
+name = "tca-signup"
+compatibility_date = "2026-04-01"
+pages_build_output_dir = "."
+account_id = "5b086763e031a46fe9ff1d119557a2ae"
+
+# KV namespace for storing events and bookings.
+[[kv_namespaces]]
+binding = "TCA_SIGNUPS"
+id = "d916d9f7e65642cbbc5c4ad3c7992918"
+preview_id = "55bf8b251a0544b1bab6ac54dae16656"

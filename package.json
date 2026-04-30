@@ -1,0 +1,11 @@
+{
+  "name": "tca-signup",
+  "version": "1.0.0",
+  "description": "Reusable slot-signup tool for Trinity Classical Academy events.",
+  "scripts": {
+    "dev": "wrangler pages dev . --kv TCA_SIGNUPS",
+    "deploy": "wrangler pages deploy . --project-name=tca-signup",
+    "seed": "node seed.js"
+  },
+  "license": "MIT"
+}
